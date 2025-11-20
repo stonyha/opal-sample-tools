@@ -86,10 +86,10 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("NitecoOpalToolsTest")
 
 @tool(
-    name="tech_stack_discovery",
+    name="tech_stack_checker",
     description="Analyzes a website's technology stack. Use when user wants to identify technologies, frameworks, or tools used by a website.",
 )
-async def tech_stack_discovery(params: CheckTechStackParams):
+async def tech_stack_checker(params: CheckTechStackParams):
     url = params.url
     if not params or not url:
         raise HTTPException(status_code=400, detail="URL is required")
