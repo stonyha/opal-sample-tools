@@ -1,7 +1,7 @@
 import logging
 import os
 from pathlib import Path
-from pydantic import BaseModel
+from pydantic import BaseModel, model_validator
 from opal_tools_sdk import tool
 from fastapi import HTTPException
 
@@ -20,8 +20,7 @@ Path("/tmp/webtech").mkdir(parents=True, exist_ok=True)
 _original_home = Path.home
 _original_mkdir = os.mkdir
 
-@classmethod
-def _patched_home(cls):
+def _patched_home():
     """Return /tmp as home directory for webtech"""
     return Path("/tmp")
 
@@ -65,23 +64,38 @@ except Exception:
 
 class CheckTechStackParams(BaseModel):
     url: str
+    
+    @model_validator(mode='before')
+    @classmethod
+    def handle_urls_parameter(cls, data):
+        """Handle case where LLM sends 'urls' instead of 'url'."""
+        if isinstance(data, dict):
+            # If 'urls' is provided instead of 'url', extract the first URL
+            if 'urls' in data and 'url' not in data:
+                urls_value = data['urls']
+                # Handle both string and list cases
+                if isinstance(urls_value, str):
+                    data['url'] = urls_value
+                elif isinstance(urls_value, list) and len(urls_value) > 0:
+                    data['url'] = urls_value[0]
+                # Remove 'urls' key to avoid validation errors
+                data.pop('urls', None)
+        return data
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("NitecoOpalToolsTest")
 
 @tool(
-  "tech_stack_discovery", 
-  "Analyzes a website's technology stack. Use when user wants to identify technologies, frameworks, or tools used by a website.", 
+    name="tech_stack_discovery",
+    description="Analyzes a website's technology stack. Use when user wants to identify technologies, frameworks, or tools used by a website.",
 )
 async def tech_stack_discovery(params: CheckTechStackParams):
     url = params.url
     if not params or not url:
         raise HTTPException(status_code=400, detail="URL is required")
-    logger.info(f"Received tech stack discovery request for URL: {url}")
     try:
         wt = webtech.WebTech(options={'json': True})
         technologies = wt.start_from_url(url)
-        logger.info(f"Technologies discovered: {technologies}")
         
         # Extract technology names from the response
         tech_list = []
