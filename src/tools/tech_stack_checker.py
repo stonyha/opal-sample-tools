@@ -21,8 +21,8 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("NitecoOpalToolsTest")
 
 @tool(
-  "tech_stack_discovery", 
-  "Analyzes a website's technology stack. Use when user wants to identify technologies, frameworks, or tools used by a website.", 
+    name="tech_stack_discovery",
+    description="Analyzes a website's technology stack. Use when user wants to identify technologies, frameworks, or tools used by a website.",
 )
 async def tech_stack_discovery(params: CheckTechStackParams):
     url = params.url
