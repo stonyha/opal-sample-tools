@@ -1,7 +1,7 @@
 import logging
 import os
 from pathlib import Path
-from pydantic import BaseModel, model_validator
+from pydantic import BaseModel, Field
 from opal_tools_sdk import tool
 from fastapi import HTTPException
 
@@ -63,7 +63,7 @@ except Exception:
     raise
 
 class CheckTechStackParams(BaseModel):
-    url: str
+    url: str = Field(description="The URL of the website to check the technology stack of")
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("NitecoOpalToolsTest")
