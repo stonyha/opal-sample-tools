@@ -64,23 +64,6 @@ except Exception:
 
 class CheckTechStackParams(BaseModel):
     url: str
-    
-    @model_validator(mode='before')
-    @classmethod
-    def handle_urls_parameter(cls, data):
-        """Handle case where LLM sends 'urls' instead of 'url'."""
-        if isinstance(data, dict):
-            # If 'urls' is provided instead of 'url', extract the first URL
-            if 'urls' in data and 'url' not in data:
-                urls_value = data['urls']
-                # Handle both string and list cases
-                if isinstance(urls_value, str):
-                    data['url'] = urls_value
-                elif isinstance(urls_value, list) and len(urls_value) > 0:
-                    data['url'] = urls_value[0]
-                # Remove 'urls' key to avoid validation errors
-                data.pop('urls', None)
-        return data
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("NitecoOpalToolsTest")
